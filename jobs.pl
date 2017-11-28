@@ -58,7 +58,13 @@ sub getHtmlPage{
 }
 
 # Main execution
-my $url =  "https://eauclaire.craigslist.org/search/acc";
-my $response = getHtmlPage($url, $u); 
+my $url =  "https://santafe.craigslist.org/search/acc";
+my $response = getHtmlPage($url); 
 say "response: $response";
+
+# Inside of the ul class="rows", I need to pick up all of the href links in <li class="result-row">
+# These links should be stored in an array and then subsequently checked to see if they match the requirements
+#
+#<ul class="rows">
+#<li class="result-row" data-pid="6396807405" data-repost-of="4812601538">
 
