@@ -49,18 +49,35 @@ sub getHtmlPage{
 	if (!$response->is_success){
 		say $response->as_string;
 		die "Unsuccessful request $response->status_line";
-		
-
 	}
 
 	# Successful request
 	return $response->decoded_content;
 }
 
+# Uses ssmtp to send an email
+sub sendEmail{
+	
+	# Args 
+	my ($destination, $subject, $body) = @_;
+
+	say $destination;
+	say $subject;
+	say $body;
+	#$body = "body";
+	my $command="echo \'$body\' | mail -s \'$subject\' $destination";
+	say "\nExecuting shell command: $command";
+	my $output = qx($command);
+	# Blocking email send, use fork/exec for non-blocking behavior
+	#system("sh", @arguments);
+	
+}
+
 # Main execution
 my $url =  "https://santafe.craigslist.org/search/acc";
 my $response = getHtmlPage($url); 
-say "response: $response";
+say $response;
+sendEmail('holmanb0214@my.uwstout.edu', 'Found a job!', $response);
 
 # Inside of the ul class="rows", I need to pick up all of the href links in <li class="result-row">
 # These links should be stored in an array and then subsequently checked to see if they match the requirements
