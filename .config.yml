@@ -1,0 +1,19 @@
+---
+person
+	name: Brett
+    email:
+      -bpholman5@gmail.com
+    profile:
+      location_urls:
+       -https://santafe.craigslist.org/search/acc 
+      
+      keywords:
+        find:
+          -remote
+          -equity
+          -consultant
+        exclude:
+          -part time
+          -part-time
+          -temporary
+          -freelance 
