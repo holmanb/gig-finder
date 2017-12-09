@@ -1,8 +1,9 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-use local::lib;
 use feature 'say';
+use YAML::Tiny;
+use local::lib;
 use LWP::Simple;
 my $site = "https://santafe.craigslist.org/search/acc";
 
@@ -63,7 +64,7 @@ sub getLinks{
 	my @interesting_urls;
 	print "Websites found on @inputs\n";
 	foreach my $url(keys %counter){
-		#print "$url\n";
+		print "$url\n";
 		push(@interesting_urls, $url);
 	}
 	return @interesting_urls;
@@ -88,29 +89,75 @@ sub sendEmail{
 	
 }
 
-# Main execution
+# does a keyword search based on a hash of keywords passed in 
+sub keyword_search{
+
+}
+
+# Open the config
+my $yaml = YAML::Tiny->read('.config.yml');	
+
+# Get a reference to the first document
+my $config = $yaml->[0];
+
 my $search_url =  "https://santafe.craigslist.org/search/acc";
+
+# Loop through config  
+while (my($person_key, $person_value) = each %$config){
+ 	say "Searching for jobs for  $person_value->{name}";	
+	
+	my $found_jobs;
+
+	# Search each profile
+	my $profiles = $person_value->{profiles};
+	while (my($key, $profile_value) = each %$profiles){
+		
+		#say "key: $key value: $profile_value urls: $profile_value->{location_urls}[0]";
+		my @locations = $profile_value->{location_urls};
+		for(my $j=0;$j<scalar(@locations);$j++){
+			my $config_urls = $profile_value->{location_urls}[$j];
+			say "Searching $config_urls";
+			#my $response = getHtmlPage($url); 
+
+			# Search given website for interesting urls
+			my @potential_opportunities = filterCraigslist(getLinks($config_urls));
+
+			my $url = $potential_opportunities[0];
+#
+#			say "html from the first site";
+			say get($url);
+		}		
+ 	}	
+	# Sending emails
+	my @emails=$person_value->{email};
+	for(my $i=0;$i<scalar(@emails);$i++){
+		
+		say "Sending emails to $person_value->{email}[$i]";
+		#sendEmail($person_value->{email}[$i], "Found a job!", $search_url);
+	}
+}
+
+
+#say "config: $config->{person}{profiles}{profile}{location_urls}[0]";
+
+# Main execution
+#my $search_url =  "https://santafe.craigslist.org/search/acc";
 #my $response = getHtmlPage($url); 
 #say $response;
-
+#say $person->{name};
 
 # Prevent duplicate sends by storing sent jobs in file
-my $filename = ".sent_jobs";
-my $handle = undef;
-open($handle, "<", $filename) or say "No jobs have been stored in $filename yet. Will generate this file if jobs are found.\n";
+#my $filename = ".sent_jobs";
+#my $handle = undef;
+#open($handle, "<", $filename) or say "No jobs have been stored in $filename yet. Will generate this file if jobs are found.\n";
 
 # Search given website for interesting urls
-my @potential_opportunities = filterCraigslist(getLinks(($search_url)));
-my $url = $potential_opportunities[0];
+#my @potential_opportunities = filterCraigslist(getLinks(($config->{person}{profiles}{profile}{location_urls}[0])));
+#my $url = $potential_opportunities[0];
 
-say "html from the first site";
-say get($url);
-sendEmail('holmanb0214@my.uwstout.edu', "Found a job!", $url);
+#say "html from the first site";
+#say get($url);
 
 
-# Inside of the ul class="rows", I need to pick up all of the href links in <li class="result-row">
-# These links should be stored in an array and then subsequently checked to see if they match the requirements
-#
-#<ul class="rows">
-#<li class="result-row" data-pid="6396807405" data-repost-of="4812601538">
+
 

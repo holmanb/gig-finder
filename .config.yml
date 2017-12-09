@@ -1,12 +1,12 @@
 ---
-person
-	name: Brett
-    email:
-      -bpholman5@gmail.com
-    profile:
+person:
+  name: Brett
+  email: 
+    -bpholman5@gmail.com
+  profiles:
+   profile:
       location_urls:
        -https://santafe.craigslist.org/search/acc 
-      
       keywords:
         find:
           -remote
