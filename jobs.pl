@@ -91,7 +91,36 @@ sub sendEmail{
 
 # does a keyword search based on a hash of keywords passed in 
 sub keyword_search{
+	my $found_url = shift;
+	my $find = shift;	
+        my $exclude = shift;
+        my $found = 0;
+        my $skip = 0 
+        # getting the final webpage
+	my $html = get($found_url);
+        
 
+	# Grab a web page and check the links 
+        @urls = $html =~ /\shref="?([^\s>"]+)/gi;
+	
+        # Search for attractive items from fonfig
+        foreach my $find_item (@$find){
+
+                if($html =~ /$find_item/){
+                
+                        $found=1;
+                }
+                say $find_item;
+        }
+
+        # Search for excluded items from config
+        foreach my $exclude_item (@$exclude){
+
+                if($html =~ /$exclude_item/) {
+                        $skip = 1;
+                }
+                say $exclude_item;
+        }
 }
 
 # Open the config
@@ -122,10 +151,13 @@ while (my($person_key, $person_value) = each %$config){
 			# Search given website for interesting urls
 			my @potential_opportunities = filterCraigslist(getLinks($config_urls));
 
+			
+			# TODO: need to add a for loop here	
 			my $url = $potential_opportunities[0];
+			keyword_search($url, ($profile_value->{keywords}->{find}), $profile_value->{keywords}->{exclude});
 #
 #			say "html from the first site";
-			say get($url);
+#			say get($url);
 		}		
  	}	
 	# Sending emails
