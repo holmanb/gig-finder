@@ -9,7 +9,7 @@ use LWP::Simple;
 use Getopt::Long qw(GetOptions);
 
 
-# Calling the main method
+# Let the fun begin! 
 &main;
 
 
@@ -182,6 +182,7 @@ sub main{
 	my $help;
 	my $no_email;
 	my $file;
+	my $directory='config';
 
 	# Defining options
 	GetOptions(
@@ -190,6 +191,7 @@ sub main{
 	       "dry_run"|"d" => \$dry_run,
 	       "no_email"|"n"=> \$no_email,
 	       "file"|"f"=> \$file,
+	       "location"|"l"=>\$directory,
 	       "help"|"h" => \$help,
 	) or die "Usage: $0 --past --clear_cache";
 	
@@ -198,7 +200,7 @@ sub main{
 		say "NAME";
 		say "\t$0 - a utility for sending job opportunities straight to your inbox\n";
 		say "SYNOPSIS";
-		say "\t$0 [clear_cache|c] [past|p] [dry_run|d] [help|h]\n";
+		say "\t$0 [clear_cache|c] [past|p] [file[=FILE]|f [FILE]] [location[=DIRECTORY]|[l [DIRECTOR]] [dry_run|d] [help|h]\n";
 		say "DESCRIPTION";
 		say "\t$0 is a script for scraping the web for jobs that match a given configuration";
 		say "\tfile.  The tool is intended to be able to scrape multiple websites, though its";
@@ -224,6 +226,10 @@ sub main{
 		say "\t\tintended for use with the installer, but can be used with cache options\n";
 		say "\t-n, --no_email";
 		say "\t\tdo I really need to explain how this works?\n";
+		say "\t-f FILE, --file=FILE";
+		say "\t\tuse to specify a custom config file \n";
+		say "\t-l DIRECTORY, --location=DIRECTORY";
+		say "\t\tuse to specify a custom config directory location\n";
 		say "\t-h, --help";
 		say "\t\ta manual for those who prefer a higher-level understanding of what the code";
 		say "\t\t is supposed to be doing\n";
@@ -252,13 +258,25 @@ sub main{
 		exit 0;
 	}       
 	
-	
-        # Open the config
+	# Get directory
 	my $dir = cwd();
-	chdir "config" or die "/config file didn't exist";
+	
+        # Open the config directory file location
+	chdir $directory or die "configuration file location: $directory didn't exist";
+
+	# Grab all available yaml files
 	my @configs = glob("*.yml *.YAML");
-	#chdir $dir or die "$dir didn't exist";
-	say join(" ", @configs);
+
+	# If a file argument is given, override the default location and only search for that car 
+	if($file){
+		@configs=();
+		push(@configs, $file);
+		say "Checking the config files: $file";
+	}else{
+		say "Found: ".join(" ", @configs)." config files";
+	}
+	
+	# Searches all of the config files
 	foreach my $config_file (@configs){
 		say "Checking for jobs using config: $config_file";
 		my $yaml = YAML::Tiny->read($config_file);	
@@ -299,6 +317,9 @@ sub main{
 			# Found some jobs
 			if(scalar(@found_jobs)){
 
+				# Return to working directory directory to write to cache
+				chdir $dir or say "Coundn't return to working directory: the .cache file may end up getting written to the directory holding the config files";
+
 				# Compare to old jobs 
 				if(open(my $fh, "<", ".cache")){ 
 					my $row;
@@ -334,6 +355,9 @@ sub main{
 					say "Wrote to cache";
 				}
 				
+				# return to the config directory file location
+				chdir $directory or die "config directory file location: $directory didn't exist";
+
 				if(@found_jobs && !$no_email){
 
 					# Send emails and stuff
