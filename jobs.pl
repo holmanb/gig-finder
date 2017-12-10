@@ -10,8 +10,8 @@ my $site = "https://santafe.craigslist.org/search/acc";
 # Reduce all URLs to standard format
 sub standardize_urls {
 	my $source = $_[0];
-	my $canon = "";
-	return ($canon) if ($source =~ /^(mailto:|telnet:|callto:)/);
+	my $declaration = "";
+	return ($declaration) if ($source =~ /^(mailto:|telnet:|callto:)/);
 	if($source=~ /^\//) {
 		$source = $site . $source;
 	}
@@ -40,7 +40,6 @@ sub getLinks{
 
 	# Grab a web page and check the links 
 	foreach my $page(@inputs){
-		print "Checking $page\n";
 		$html = get($page);
 		@urls = $html =~ /\shref="?([^\s>"]+)/gi;
 	}
@@ -54,6 +53,7 @@ sub getLinks{
 		$full = standardize_urls($url);
 		next unless($full);
 		
+                # Save sites that 
 		if($full !~ /^$site/) {
 			push @externals, $full;
 			$counter{$full}++;
@@ -62,9 +62,9 @@ sub getLinks{
 
 	# Print and return urls
 	my @interesting_urls;
-	print "Websites found on @inputs\n";
+	#print "Websites found on @inputs\n";
 	foreach my $url(keys %counter){
-		print "$url\n";
+	#	print "$url\n";
 		push(@interesting_urls, $url);
 	}
 	return @interesting_urls;
@@ -73,44 +73,32 @@ sub getLinks{
 
 # Uses ssmtp to send an email
 sub sendEmail{
-	
-	# Args 
+
 	my ($destination, $subject, $body) = @_;
 
-	say $destination;
-	say $subject;
-	say $body;
-	#$body = "body";
+        # Create and display the shell command used to send the email
 	my $command="echo \'$body\' | mail -s \'$subject\' $destination";
-	say "\nExecuting shell command: $command";
+	#say "\nExecuting shell command: $command";
 	my $output = qx($command);
-	# Blocking email send, use fork/exec for non-blocking behavior
-	#system("sh", @arguments);
-	
 }
 
-# does a keyword search based on a hash of keywords passed in 
+# does a keyword search based on a hash of keywords passed in: returns true if it passes the test 
 sub keyword_search{
-	my $found_url = shift;
-	my $find = shift;	
-        my $exclude = shift;
+	my ($found_url, $find, $exclude) = @_;
         my $found = 0;
-        my $skip = 0 
+        my $skip = 0; 
+
         # getting the final webpage
 	my $html = get($found_url);
-        
-
-	# Grab a web page and check the links 
-        @urls = $html =~ /\shref="?([^\s>"]+)/gi;
 	
-        # Search for attractive items from fonfig
+        # Search for attractive items from config
         foreach my $find_item (@$find){
 
                 if($html =~ /$find_item/){
                 
                         $found=1;
+                        next;
                 }
-                say $find_item;
         }
 
         # Search for excluded items from config
@@ -118,9 +106,10 @@ sub keyword_search{
 
                 if($html =~ /$exclude_item/) {
                         $skip = 1;
+                        return 0;
                 }
-                say $exclude_item;
         }
+        return $found;
 }
 
 # Open the config
@@ -133,63 +122,50 @@ my $search_url =  "https://santafe.craigslist.org/search/acc";
 
 # Loop through config  
 while (my($person_key, $person_value) = each %$config){
- 	say "Searching for jobs for  $person_value->{name}";	
+ 	say "Searching for jobs for $person_value->{name}";	
 	
-	my $found_jobs;
+	my @found_jobs;
 
 	# Search each profile
 	my $profiles = $person_value->{profiles};
 	while (my($key, $profile_value) = each %$profiles){
 		
-		#say "key: $key value: $profile_value urls: $profile_value->{location_urls}[0]";
+                # Get each location url in the config file
 		my @locations = $profile_value->{location_urls};
 		for(my $j=0;$j<scalar(@locations);$j++){
 			my $config_urls = $profile_value->{location_urls}[$j];
 			say "Searching $config_urls";
-			#my $response = getHtmlPage($url); 
 
 			# Search given website for interesting urls
 			my @potential_opportunities = filterCraigslist(getLinks($config_urls));
-
-			
-			# TODO: need to add a for loop here	
-			my $url = $potential_opportunities[0];
-			keyword_search($url, ($profile_value->{keywords}->{find}), $profile_value->{keywords}->{exclude});
-#
-#			say "html from the first site";
-#			say get($url);
+                        foreach my $opportunity (@potential_opportunities){
+                                
+                                # Match found! 
+                                if(keyword_search($opportunity, ($profile_value->{keywords}->{find}), $profile_value->{keywords}->{exclude})){
+                                       push @found_jobs, $opportunity; 
+                                       say "Found a job!! $opportunity"
+                                }
+                        }
 		}		
  	}	
-	# Sending emails
-	my @emails=$person_value->{email};
-	for(my $i=0;$i<scalar(@emails);$i++){
-		
-		say "Sending emails to $person_value->{email}[$i]";
-		#sendEmail($person_value->{email}[$i], "Found a job!", $search_url);
-	}
+        
+        # Found some jobs
+        if(scalar(@found_jobs)){
+               
+                # Send emails and stuff
+                my @emails=$person_value->{email};
+                my @tags = ("Your Strangely Human Perl Script", "Your Anonymous Benefactor", "Your Null Friend", "Your Most Favoured Servant");
+                my $msg="Hey $person_value->{name}!\n\nCheck out these sweet jobs I found for you!\n\n";
+                $msg.=join("\n", @found_jobs)."\n\nSincerely,\n\n".$tags[int(rand(scalar(@tags)-1))];
+
+                for(my $i=0;$i<scalar(@emails);$i++){
+                        
+                        # Sending emails
+                        say "Sending emails to $person_value->{email}[$i]";
+                        sendEmail($person_value->{email}[$i], "Found a job!",$msg);
+                }
+        }else{
+                say "\nNo jobs this time :(";
+        }
 }
-
-
-#say "config: $config->{person}{profiles}{profile}{location_urls}[0]";
-
-# Main execution
-#my $search_url =  "https://santafe.craigslist.org/search/acc";
-#my $response = getHtmlPage($url); 
-#say $response;
-#say $person->{name};
-
-# Prevent duplicate sends by storing sent jobs in file
-#my $filename = ".sent_jobs";
-#my $handle = undef;
-#open($handle, "<", $filename) or say "No jobs have been stored in $filename yet. Will generate this file if jobs are found.\n";
-
-# Search given website for interesting urls
-#my @potential_opportunities = filterCraigslist(getLinks(($config->{person}{profiles}{profile}{location_urls}[0])));
-#my $url = $potential_opportunities[0];
-
-#say "html from the first site";
-#say get($url);
-
-
-
 
