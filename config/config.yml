@@ -3,10 +3,10 @@ person:
   name: Brett
   email: 
     -bpholman5@gmail.com
-    -holmanb0214@my.uwstout.edu
   profiles:
    profile:
       location_urls:
+        -https://www.indeed.com/jobs?q=&I=santa+fe%2C+nm
         -https://santafe.craigslist.org/search/sof
         -https://santafe.craigslist.org/search/sad
         -https://santafe.craigslist.org/search/web
@@ -31,3 +31,4 @@ person:
           -part-time
           -temporary
           -freelance 
+
