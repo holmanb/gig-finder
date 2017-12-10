@@ -7,23 +7,44 @@ use YAML::Tiny;
 use LWP::Simple;
 use Getopt::Long qw(GetOptions);
 
-# Getting and hanlding cli options
+# Getting and handling cli options
 my $clear_cache;
 my $dry_run;
 my $past;
 my $help;
+
+# Defining options
 GetOptions(
        "clear_cache"|"c" => \$clear_cache,
        "past"|"p" => \$past,
        "dry_run"|"d" => \$dry_run,
        "help"|"h" => \$help,
-) or die "Usage: $0 --one_time --clear_cache";
+) or die "Usage: $0 --past --clear_cache";
 
 # Dry run used for dependency checking on the install script
 if($dry_run){
+        
+        # Prints out links previously send to cache
+        if($past){
+                open(my $fh, "<", ".cache") or die "Cannot read from cache"; 
+                        my $row;
+                        say "Previously send items in cache:";
+                        while($row = <$fh>){
+                                say $row; 
+                        }
+                
+        }
+
+        # Deletes the cache
+        if($clear_cache){
+                say "Cache cleared";
+                unlink ".cache";
+        }
         say "Dry run, dependencies properly installed.";
+        exit 0;
 }
 
+# Main method
 &main;
 
 # standardize_urls
@@ -145,23 +166,29 @@ sub keyword_search{
 
         # getting the final webpage
 	my $html = get($found_url);
-	
+        
+         
         # Search for attractive items from config
-        foreach my $find_item (@$find){
+        if ($html){
+                foreach my $find_item (@$find){
 
-                if($html =~ /$find_item/){
-                        
-                        # Save keywords for later
-                        push(@keywords, $find_item);
+                        if($html =~ /$find_item/){
+                                
+                                # Save keywords for later
+                                push(@keywords, $find_item);
+                        }
                 }
-        }
 
-        # Search for excluded items from config
-        foreach my $exclude_item (@$exclude){
+                # Search for excluded items from config
+                foreach my $exclude_item (@$exclude){
 
-                if($html =~ /$exclude_item/) {
-                        return ();
+                        if($html =~ /$exclude_item/) {
+                                return ();
+                        }
                 }
+                
+        }else{
+                say "$html is unitialized for some reason, might want to double check the url given: [$found_url]";
         }
         return @keywords;
 }
@@ -209,26 +236,52 @@ sub main{
                 if(scalar(@found_jobs)){
 
                         # Compare to old jobs 
-                        open(DATA, "<.cache") or say "No cache found";
-                        while(<DATA>){
-                               for my $i (0..scalar(@found_jobs)-1){
-                                        if($_ eq $found_jobs[$i]){
-                                                splice(@found_jobs, $i, 1);
-                                                say "match found, removing $found_jobs[$i]";
-                                        }
-                               }
-                        }
-                        # Send emails and stuff
-                        my @emails=$person_value->{email};
-                        my @tags = ("Your Strangely Human Perl Script", "Your Anonymous Benefactor", "Your Null Friend", "Your Most Favoured Servant");
-                        my $msg="Hey $person_value->{name}!\n\nCheck out these sweet jobs I found for you!\n\n";
-                        $msg.=join("\n", @found_jobs)."\n\nSincerely,\n\n".$tags[int(rand(scalar(@tags)-1))];
+                        if(open(my $fh, "<", ".cache")){ 
+                                my $row;
+                                while($row = <$fh>){
+                                       for( my $i=0;$i<scalar(@found_jobs)-1;$i++){
+                                                if(index($row, $found_jobs[$i]) != -1){
+                                                        splice(@found_jobs, $i, 1);
+                                                        say "duplicate found, removing $found_jobs[$i]";
+                                                }
+                                       }
+                                }
+                                close($fh);
 
-                        for(my $i=0;$i<scalar(@emails);$i++){
-                                
-                                # Sending emails
-                                say "Sending emails to $person_value->{email}[$i]";
-                                sendEmail($person_value->{email}[$i], "Found a job!",$msg);
+                                # Save new opportunities to the file
+                                open(my $fh, ">>", ".cache") or say "Unable to write to cache";
+                                foreach (@found_jobs){
+                                        say $fh $_;
+                                }
+                                close($fh);
+
+                        }else{
+                                say "No cache found";
+                                open($fh, ">>", ".cache") or say "Unable to write to cache";
+                                foreach (@found_jobs){
+                                        say $fh $_;
+                                        if($past)
+                                        {
+                                                say $fh;
+                                        }
+                                }
+                                close($fh);
+                                say "Wrote to cache";
+                        }
+                        
+                        if(@found_jobs){
+                                # Send emails and stuff
+                                my @emails=$person_value->{email};
+                                my @tags = ("Your Strangely Human Perl Script", "Your Anonymous Benefactor", "Your Null Friend", "Your Most Favoured Servant");
+                                my $msg="Hey $person_value->{name}!\n\nCheck out these sweet jobs I found for you!\n\n";
+                                $msg.=join("\n", @found_jobs)."\n\nSincerely,\n\n".$tags[int(rand(scalar(@tags)-1))];
+
+                                for(my $i=0;$i<scalar(@emails);$i++){
+                                        
+                                        # Sending emails
+                                        say "Sending emails to $person_value->{email}[$i]";
+                                        sendEmail($person_value->{email}[$i], "Found a job!",$msg);
+                                }
                         }
                 }else{
                         say "\nNo jobs this time :(";

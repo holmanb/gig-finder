@@ -3,15 +3,29 @@ person:
   name: Brett
   email: 
     -bpholman5@gmail.com
+    -holmanb0214@my.uwstout.edu
   profiles:
    profile:
       location_urls:
-       -https://santafe.craigslist.org/search/acc 
+        -https://santafe.craigslist.org/search/sof
+        -https://santafe.craigslist.org/search/sad
+        -https://santafe.craigslist.org/search/web
+        -https://santafe.craigslist.org/search/eng
       keywords:
         find:
           -remote
           -equity
           -consultant
+          -consulting
+          -c++
+          -pnuts
+          -ftpc
+          -mes
+          -python
+          -perl
+          -bash
+          -linux
+          -nix
         exclude:
           -part time
           -part-time
