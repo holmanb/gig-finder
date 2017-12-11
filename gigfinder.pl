@@ -254,7 +254,7 @@ sub main{
 			say "Cache cleared";
 			unlink ".cache";
 		}
-		say "Dry run, dependencies properly installed.";
+		say "Dry run succeeded, dependencies are properly installed.";
 		exit 0;
 	}       
 	
