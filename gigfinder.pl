@@ -200,12 +200,12 @@ sub main{
 		say "NAME";
 		say "\t$0 - a utility for sending job opportunities straight to your inbox\n";
 		say "SYNOPSIS";
-		say "\t$0 [clear_cache|c] [past|p] [file[=FILE]|f [FILE]] [location[=DIRECTORY]|[l [DIRECTOR]] [dry_run|d] [help|h]\n";
+		say "\t$0 [clear_cache|c] [past|p] [file[=FILE]|f [FILE]] [location[=DIRECTORY]|[l [DIRECTORY]] [dry_run|d] [help|h]\n";
 		say "DESCRIPTION";
 		say "\t$0 is a script for scraping the web for jobs that match a given configuration";
 		say "\tfile.  The tool is intended to be able to scrape multiple websites, though its";
 		say "\tcurrent implementation has only implimented searching the \'neighborhood\' of w-";
-		say "\tbpages (graph theory).  This means that it will search the given urls for avail-";
+		say "\tebpages (graph theory).  This means that it will search the given urls for avail-";
 		say "\table links, and it will search the websites linked to for keywords. This works ";		       
 		say "\tquite well for sites such as craigslist and indeed. The script";
 		say "\thas the additional ability to read from multiple \'profiles\' in the configura";
