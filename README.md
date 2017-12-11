@@ -33,17 +33,28 @@ Runtime Options
 ---------------
 
 OPTIONS
+
 	-c, --clear_cache: 			clears the history of previus jobs sent. This literally just deleates .cache
+
 	-p, --past: 				prints out cached jobs (that have been previously sent)
+
 	-d, --dry_run: 				intended for use with the installer, but can be used with cache options
+
 	-n, --no_email: 			runs to completion, but skips sending an email
+
 	-f FILE, --file=FILE: 			specify a custom config file 
+
 	-l DIRECTORY, --location=DIRECTORY: 	specify a custom config directory location
+
 	-h, --help:  				help instructions
 
+
 EXAMPLES
+
 	`./gigfinder -h | less`
+
 	`./gigfinder -c  -n`
+
 				 
 
 
