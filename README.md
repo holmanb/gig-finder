@@ -51,9 +51,9 @@ OPTIONS
 
 EXAMPLES
 
-	`./gigfinder -h | less`
+	./gigfinder -h | less
 
-	`./gigfinder -c  -n`
+	./gigfinder -c  -n
 
 				 
 

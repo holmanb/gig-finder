@@ -190,8 +190,8 @@ sub main{
 	       "past"|"p" => \$past,
 	       "dry_run"|"d" => \$dry_run,
 	       "no_email"|"n"=> \$no_email,
-	       "file"|"f"=> \$file,
-	       "location"|"l"=>\$directory,
+	       "file=s"|"f"=> \$file,
+	       "location=s"|"l"=>\$directory,
 	       "help"|"h" => \$help,
 	) or die "Usage: $0 --past --clear_cache";
 	

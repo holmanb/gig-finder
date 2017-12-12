@@ -1,34 +1,26 @@
 ---
 person:
-  name: Brett
+  name: your-name
   email: 
-    -bpholman5@gmail.com
+    -your-email@gmail.com
   profiles:
    profile:
       location_urls:
-        -https://www.indeed.com/jobs?q=&I=santa+fe%2C+nm
-        -https://santafe.craigslist.org/search/sof
-        -https://santafe.craigslist.org/search/sad
-        -https://santafe.craigslist.org/search/web
-        -https://santafe.craigslist.org/search/eng
+        -https://eauclaire.craigslist.org/search/web
+        -https://eauclaire.craigslist.org/search/sad
+        -https://eauclaire.craigslist.org/search/eng
+        -https://madison.craigslist.org/search/sof
+        -https://minneapolis.craigslist.org/search/sof
       keywords:
         find:
           -remote
           -equity
-          -consultant
-          -consulting
           -c++
-          -pnuts
-          -ftpc
-          -mes
           -python
-          -perl
           -bash
           -linux
-          -nix
         exclude:
           -part time
           -part-time
           -temporary
-          -freelance 
 
