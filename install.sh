@@ -12,6 +12,12 @@ cpan App::cpanminus;
 cpanm local::lib;
 echo 'eval "$(perl -I$HOME/foo/lib/perl5 -Mlocal::lib=$HOME/foo)"' >>~/.bashrc
 
+# For https support libssl-dev is required 
+# This has burned me twice when using LWP, so I'll drop a link here for future reference
+# https://serverfault.com/questions/299728/install-lwp-perl-module-on-debian-others 
+sudo apt-get install libssl-dev -y
+sudo apt-get install libwww-perl libdbi-perl libdbd-mysql-perl libgd-gd2-perl -y
+
 # Installing the perl dependencies
 cpanm install YAML::Tiny;
 cpanm install LWP::Simple;
@@ -19,7 +25,7 @@ cpanm install Getopt::Long;
 
 # Install ssmtp
 apt-get install ssmtp -y
-apt-get install mailutils
+apt-get install mailutils -y
 
 # Add the local directory to the path temporarily
 export PATH=$PATH:.
