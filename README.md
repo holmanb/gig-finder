@@ -12,11 +12,9 @@ Installation
 This program should be straightforward to run and work with once dependencies are installed.  I've created a prototype installer script for debian based systems. If it fails, take a looks at 
 the error messages to figure out why, if you find and error, or would like to submit a pull request for a more versatile installer, please do.  There are a handful of perl modules required, and the installer uses *cpanm*, as well as ssnmtp and mailutils which must be configured and setup to be able to send email via command line.
 	
-	$ git install https://github.com/holmanbph/gig-finder.git
+	$ git clone https://github.com/holmanbph/gig-finder.git
 
-	$ cd gig-finder
-
-	$ sudo ./install.sh or sudo bash install.sh
+	$ sudo bash gig-finder/install.sh
 
 
 Configuration
