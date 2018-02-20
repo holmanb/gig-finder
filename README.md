@@ -67,3 +67,7 @@ Contributing
 6. Wait
 
 
+AUTHOR
+------
+	Written by Brett Holman in Fall 2017.
+
